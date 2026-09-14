@@ -88,11 +88,14 @@
     height: 0 !important;
   }
 
-  /* Убираем сдвиг сайта вниз */
+  /* Убираем сдвиг сайта вниз и запрещаем градиенту повторяться */
   body {
     top: 0px !important;
     position: static !important;
+    background-repeat: no-repeat !important; /* Не повторять градиент плиткой вниз */
+    background-color: #080d14 !important;   /* Чистый темный фон внизу страницы */
   }
+
 
   /* Анимация вращения спиннера */
   @keyframes lang-spin {
