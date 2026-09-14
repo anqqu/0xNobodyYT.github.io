@@ -16,8 +16,9 @@ const calendarSource=`../sxs-primo-calculator/index.html?v=${Date.now()}`;
 fetch(calendarSource,{cache:"no-store"}).then(response=>{if(!response.ok)throw new Error("Calendar source unavailable");return response.text()}).then(html=>{document.open();document.write(html);document.close()}).catch(()=>document.querySelector(".loading b").textContent="The calendar could not be loaded.");
 </script>
 
-<!-- 1. Скрываем белую полоску Google -->
+<!-- 1. СТИЛИ: скрытие белой полосы Google + красивый спиннер и кнопки -->
 <style>
+  /* Скрываем верхнюю белую полосу Google Translate */
   .goog-te-banner-frame,
   .goog-te-banner-frame.skiptranslate,
   iframe.goog-te-banner-frame,
@@ -26,45 +27,119 @@ fetch(calendarSource,{cache:"no-store"}).then(response=>{if(!response.ok)throw n
     visibility: hidden !important;
     height: 0 !important;
   }
+
+  /* Убираем сдвиг сайта вниз (возвращаем к верхнему краю) */
   body {
     top: 0px !important;
     position: static !important;
   }
+
+  /* Анимация вращения спиннера загрузки */
+  @keyframes lang-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .lang-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: lang-spin 0.6s linear infinite;
+    vertical-align: middle;
+  }
+
+  /* Оформление кнопок RU / EN в неоновом стиле сайта */
+  .lang-btn {
+    cursor: pointer;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #142838;
+    color: #a8c6e8;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 65px;
+    height: 40px;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+
+  .lang-btn:hover {
+    transform: translateY(-2px);
+    border-color: #294458;
+    color: #fff;
+  }
+
+  /* Подсветка выбранной кнопки (голубой неон) */
+  .lang-btn.active {
+    background: #63dbef !important;
+    color: #080d14 !important;
+    box-shadow: 0 0 14px rgba(99, 219, 239, 0.5);
+  }
 </style>
 
-<!-- 2. Скрытый контейнер перевода -->
+<!-- 2. СКРЫТЫЙ КОНТЕЙНЕР GOOGLE TRANSLATE -->
 <div id="google_translate_element" style="display:none;"></div>
 
-<!-- Кнопки переключения RU / EN с защитой от перевода -->
-<div id="lang-switch-box" class="notranslate" translate="no" style="position:fixed;bottom:15px;right:15px;z-index:999999;display:flex;gap:6px;background:#0d1823;padding:5px;border-radius:10px;border:1px solid #294458;box-shadow:0 6px 20px rgba(0,0,0,0.6);font-family:sans-serif;">
-  <button type="button" class="notranslate" translate="no" onclick="setSiteLanguage('ru')" id="btn-lang-ru" style="cursor:pointer;padding:6px 14px;border:1px solid transparent;border-radius:7px;background:#142838;color:#a8c6e8;font-weight:800;font-size:12px;transition:0.2s;">RU</button>
-  <button type="button" class="notranslate" translate="no" onclick="setSiteLanguage('en')" id="btn-lang-en" style="cursor:pointer;padding:6px 14px;border:1px solid transparent;border-radius:7px;background:#142838;color:#a8c6e8;font-weight:800;font-size:12px;transition:0.2s;">EN</button>
+<!-- 3. КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА (ЗАЩИЩЕНЫ ОТ ПЕРЕВОДА translate="no") -->
+<div id="lang-switch-box" class="notranslate" translate="no" style="position:fixed;bottom:20px;right:20px;z-index:999999;display:flex;gap:8px;background:#0d1823;padding:8px;border-radius:12px;border:1px solid #294458;box-shadow:0 8px 25px rgba(0,0,0,0.7);font-family:sans-serif;">
+  <button type="button" class="notranslate lang-btn" translate="no" onclick="setSiteLanguage('ru')" id="btn-lang-ru">RU</button>
+  <button type="button" class="notranslate lang-btn" translate="no" onclick="setSiteLanguage('en')" id="btn-lang-en">EN</button>
 </div>
 
-<!-- 4. Скрипт перевода -->
+<!-- 4. ЛОГИКА И СКРИПТЫ ПЕРЕВОДА -->
 <script type="text/javascript">
+  // Инициализация виджета Google Translate
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({
       pageLanguage: 'en',
       includedLanguages: 'en,ru',
       autoDisplay: false
     }, 'google_translate_element');
+    
+    // Проверяем сохраненный язык при загрузке страницы
     updateButtonStyles();
   }
 
+  // Функция переключения языка при клике на кнопки
   function setSiteLanguage(lang) {
+    const isRu = lang === 'ru';
+    const targetBtn = document.getElementById(isRu ? 'btn-lang-ru' : 'btn-lang-en');
+    
+    if (!targetBtn) return;
+
+    // Показываем крутящийся спиннер внутри нажатой кнопки
+    targetBtn.innerHTML = '<span class="lang-spinner"></span>';
+    targetBtn.style.pointerEvents = 'none';
+
     const select = document.querySelector('.goog-te-combo');
     if (select) {
       select.value = lang;
       select.dispatchEvent(new Event('change'));
+
+      // Через 600 мс восстанавливаем текст кнопки и обновляем подсветку
+      setTimeout(function() {
+        targetBtn.innerText = isRu ? 'RU' : 'EN';
+        targetBtn.style.pointerEvents = 'auto';
+        updateButtonStyles();
+      }, 600);
     } else {
+      // Резервный механизм через куки, если селектор еще не успел прогрузиться
       document.cookie = "googtrans=/en/" + lang + "; path=/;";
       document.cookie = "googtrans=/en/" + lang + "; domain=" + window.location.hostname + "; path=/;";
       location.reload();
     }
-    setTimeout(updateButtonStyles, 300);
   }
 
+  // Обновление подсветки активной кнопки
   function updateButtonStyles() {
     const isRu = document.cookie.includes('googtrans=/en/ru');
     const btnRu = document.getElementById('btn-lang-ru');
@@ -72,18 +147,16 @@ fetch(calendarSource,{cache:"no-store"}).then(response=>{if(!response.ok)throw n
     if (!btnRu || !btnEn) return;
 
     if (isRu) {
-      btnRu.style.background = '#63dbef';
-      btnRu.style.color = '#080d14';
-      btnEn.style.background = '#142838';
-      btnEn.style.color = '#a8c6e8';
+      btnRu.classList.add('active');
+      btnEn.classList.remove('active');
     } else {
-      btnEn.style.background = '#63dbef';
-      btnEn.style.color = '#080d14';
-      btnRu.style.background = '#142838';
-      btnRu.style.color = '#a8c6e8';
+      btnEn.classList.add('active');
+      btnRu.classList.remove('active');
     }
   }
 </script>
+
+<!-- 5. ОФИЦИАЛЬНЫЙ СКРИПТ GOOGLE TRANSLATE -->
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
