@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Skills Overview · Sword x Staff</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23080d14' stroke='%2363dbef' stroke-width='6'/><g stroke='%2363dbef' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='none'><path d='M25 75 L68 32'/><path d='M68 32 L78 22 L83 27 L73 37 Z' fill='%2363dbef' fill-opacity='0.25'/><path d='M22 68 L32 78'/><circle cx='23' cy='77' r='3' fill='%2363dbef'/><path d='M75 75 L35 35'/><circle cx='28' cy='28' r='9' fill='%2363dbef' fill-opacity='0.25'/><path d='M23 23 L33 33 M23 33 L33 23'/><circle cx='80' cy='80' r='2' fill='%2363dbef'/></g><text x='50' y='88' font-size='11' font-family='monospace' font-weight='bold' fill='%2363dbef' text-anchor='middle' letter-spacing='1'>CALC</text></svg>">
   <meta name="description" content="Browse Sword x Staff class skills and compare the same skill at different grades, stars, and levels.">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7K3SQNSXS9"></script>
   <script src="../analytics.js"></script>
@@ -27,7 +28,7 @@
 </main>
 <script src="../sxs-loadout-builder/data.js"></script><script src="../sxs-loadout-builder/combat-data.js?v=20260913-3"></script><script src="../sxs-loadout-builder/fantomons.js"></script><script src="../sxs-explorer.js?v=20260913-3"></script>
 
-<!-- 1. СТИЛИ: скрытие белой полосы Google + красивый спиннер и кнопки -->
+<!-- 1. СТИЛИ: скрытие белой полосы Google + спиннер и кнопки -->
 <style>
   /* Скрываем верхнюю белую полосу Google Translate */
   .goog-te-banner-frame,
@@ -39,13 +40,13 @@
     height: 0 !important;
   }
 
-  /* Убираем сдвиг сайта вниз (возвращаем к верхнему краю) */
+  /* Убираем сдвиг сайта вниз */
   body {
     top: 0px !important;
     position: static !important;
   }
 
-  /* Анимация вращения спиннера загрузки */
+  /* Анимация вращения спиннера */
   @keyframes lang-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -62,7 +63,7 @@
     vertical-align: middle;
   }
 
-  /* Оформление кнопок RU / EN в неоновом стиле сайта */
+  /* Оформление кнопок RU / EN */
   .lang-btn {
     cursor: pointer;
     padding: 10px 20px;
@@ -89,7 +90,7 @@
     color: #fff;
   }
 
-  /* Подсветка выбранной кнопки (голубой неон) */
+  /* Подсветка выбранной кнопки (неоновый циан) */
   .lang-btn.active {
     background: #63dbef !important;
     color: #080d14 !important;
@@ -100,7 +101,7 @@
 <!-- 2. СКРЫТЫЙ КОНТЕЙНЕР GOOGLE TRANSLATE -->
 <div id="google_translate_element" style="display:none;"></div>
 
-<!-- 3. КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА (ЗАЩИЩЕНЫ ОТ ПЕРЕВОДА translate="no") -->
+<!-- 3. КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА -->
 <div id="lang-switch-box" class="notranslate" translate="no" style="position:fixed;bottom:20px;right:20px;z-index:999999;display:flex;gap:8px;background:#0d1823;padding:8px;border-radius:12px;border:1px solid #294458;box-shadow:0 8px 25px rgba(0,0,0,0.7);font-family:sans-serif;">
   <button type="button" class="notranslate lang-btn" translate="no" onclick="setSiteLanguage('ru')" id="btn-lang-ru">RU</button>
   <button type="button" class="notranslate lang-btn" translate="no" onclick="setSiteLanguage('en')" id="btn-lang-en">EN</button>
@@ -108,7 +109,6 @@
 
 <!-- 4. ЛОГИКА И СКРИПТЫ ПЕРЕВОДА -->
 <script type="text/javascript">
-  // Инициализация виджета Google Translate
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({
       pageLanguage: 'en',
@@ -116,41 +116,56 @@
       autoDisplay: false
     }, 'google_translate_element');
     
-    // Проверяем сохраненный язык при загрузке страницы
     updateButtonStyles();
   }
 
-  // Функция переключения языка при клике на кнопки
+  // Функция мгновенного переключения с первого клика
   function setSiteLanguage(lang) {
     const isRu = lang === 'ru';
     const targetBtn = document.getElementById(isRu ? 'btn-lang-ru' : 'btn-lang-en');
-    
     if (!targetBtn) return;
 
-    // Показываем крутящийся спиннер внутри нажатой кнопки
+    // Включаем спиннер
     targetBtn.innerHTML = '<span class="lang-spinner"></span>';
     targetBtn.style.pointerEvents = 'none';
 
+    const domain = window.location.hostname;
+
+    // 1. СРАЗУ записываем или очищаем куки перед запросом
+    if (isRu) {
+      document.cookie = "googtrans=/en/ru; path=/;";
+      document.cookie = "googtrans=/en/ru; domain=" + domain + "; path=/;";
+      if (domain.includes('.')) {
+        document.cookie = "googtrans=/en/ru; domain=." + domain + "; path=/;";
+      }
+    } else {
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + domain + "; path=/;";
+      if (domain.includes('.')) {
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=." + domain + "; path=/;";
+      }
+    }
+
+    // 2. Сразу подсвечиваем кнопку, не дожидаясь ответа
+    updateButtonStyles();
+
+    // 3. Вызываем перевод в Google
     const select = document.querySelector('.goog-te-combo');
     if (select) {
-      select.value = lang;
-      select.dispatchEvent(new Event('change'));
+      select.value = isRu ? 'ru' : '';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
 
-      // Через 600 мс восстанавливаем текст кнопки и обновляем подсветку
       setTimeout(function() {
         targetBtn.innerText = isRu ? 'RU' : 'EN';
         targetBtn.style.pointerEvents = 'auto';
         updateButtonStyles();
-      }, 600);
+      }, 500);
     } else {
-      // Резервный механизм через куки, если селектор еще не успел прогрузиться
-      document.cookie = "googtrans=/en/" + lang + "; path=/;";
-      document.cookie = "googtrans=/en/" + lang + "; domain=" + window.location.hostname + "; path=/;";
+      // Если селектор Google ещё загружается, перезагружаем — кука уже стоит!
       location.reload();
     }
   }
 
-  // Обновление подсветки активной кнопки
   function updateButtonStyles() {
     const isRu = document.cookie.includes('googtrans=/en/ru');
     const btnRu = document.getElementById('btn-lang-ru');
