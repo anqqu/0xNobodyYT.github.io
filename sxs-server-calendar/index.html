@@ -15,15 +15,42 @@ html,body{margin:0;min-height:100%;background:#090c12;color:#f4f7fb;font:16px/1.
 const calendarSource=`../sxs-primo-calculator/index.html?v=${Date.now()}`;
 fetch(calendarSource,{cache:"no-store"}).then(response=>{if(!response.ok)throw new Error("Calendar source unavailable");return response.text()}).then(html=>{document.open();document.write(html);document.close()}).catch(()=>document.querySelector(".loading b").textContent="The calendar could not be loaded.");
 </script>
-<!-- Скрытый блок Google Translate -->
+
+<!-- 1. Скрываем белую полоску Google -->
+<style>
+  .goog-te-banner-frame,
+  .goog-te-banner-frame.skiptranslate,
+  iframe.goog-te-banner-frame,
+  body > .skiptranslate:first-child {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+  }
+  body {
+    top: 0px !important;
+    position: static !important;
+  }
+  #goog-gt-tt, 
+  .goog-te-balloon-frame,
+  .VIpgJd-ZVi9od-aZ2wEe-wOHMyf {
+    display: none !important;
+  }
+  .goog-text-highlight {
+    background: none !important;
+    box-shadow: none !important;
+  }
+</style>
+
+<!-- 2. Скрытый контейнер перевода -->
 <div id="google_translate_element" style="display:none;"></div>
 
-<!-- Красивые кнопки RU / EN в темном стиле сайта -->
+<!-- 3. Кнопки переключения RU / EN -->
 <div id="lang-switch-box" style="position:fixed;bottom:15px;right:15px;z-index:999999;display:flex;gap:6px;background:#0d1823;padding:5px;border-radius:10px;border:1px solid #294458;box-shadow:0 6px 20px rgba(0,0,0,0.6);font-family:sans-serif;">
   <button type="button" onclick="setSiteLanguage('ru')" id="btn-lang-ru" style="cursor:pointer;padding:6px 14px;border:1px solid transparent;border-radius:7px;background:#142838;color:#a8c6e8;font-weight:800;font-size:12px;transition:0.2s;">RU</button>
   <button type="button" onclick="setSiteLanguage('en')" id="btn-lang-en" style="cursor:pointer;padding:6px 14px;border:1px solid transparent;border-radius:7px;background:#142838;color:#a8c6e8;font-weight:800;font-size:12px;transition:0.2s;">EN</button>
 </div>
 
+<!-- 4. Скрипт перевода -->
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({
@@ -31,8 +58,6 @@ fetch(calendarSource,{cache:"no-store"}).then(response=>{if(!response.ok)throw n
       includedLanguages: 'en,ru',
       autoDisplay: false
     }, 'google_translate_element');
-    
-    // Подсветка активной кнопки при загрузке
     updateButtonStyles();
   }
 
