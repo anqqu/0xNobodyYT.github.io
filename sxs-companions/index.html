@@ -139,7 +139,7 @@
     color: #fff;
   }
 
-  /* Подсветка выбранной кнопки (неоновый циан) */
+  /* Подсветка активной кнопки */
   .lang-btn.active {
     background: #63dbef !important;
     color: #080d14 !important;
@@ -156,7 +156,7 @@
   <button type="button" class="notranslate lang-btn" translate="no" onclick="setSiteLanguage('en')" id="btn-lang-en">EN</button>
 </div>
 
-<!-- 4. ЛОГИКА И СКРИПТЫ ПЕРЕВОДА -->
+<!-- 4. ЛОГИКА С РЕАЛЬНЫМ ОТСЛЕЖИВАНИЕМ ЗАВЕРШЕНИЯ ПЕРЕВОДА -->
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({
@@ -164,58 +164,38 @@
       includedLanguages: 'en,ru',
       autoDisplay: false
     }, 'google_translate_element');
-    
-    updateButtonStyles();
   }
 
-  // Функция мгновенного переключения с первого клика
-  function setSiteLanguage(lang) {
-    const isRu = lang === 'ru';
-    const targetBtn = document.getElementById(isRu ? 'btn-lang-ru' : 'btn-lang-en');
-    if (!targetBtn) return;
-
-    // Включаем спиннер
-    targetBtn.innerHTML = '<span class="lang-spinner"></span>';
-    targetBtn.style.pointerEvents = 'none';
-
-    const domain = window.location.hostname;
-
-    // 1. СРАЗУ записываем или очищаем куки перед запросом
-    if (isRu) {
-      document.cookie = "googtrans=/en/ru; path=/;";
-      document.cookie = "googtrans=/en/ru; domain=" + domain + "; path=/;";
-      if (domain.includes('.')) {
-        document.cookie = "googtrans=/en/ru; domain=." + domain + "; path=/;";
-      }
-    } else {
-      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + domain + "; path=/;";
-      if (domain.includes('.')) {
-        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=." + domain + "; path=/;";
-      }
+  // Отслеживание РЕАЛЬНОГО момента, когда Google закончил перевод страницы
+  function waitForGoogleTranslateFinish(callback) {
+    // Google ставит класс "translated-ltr" к тегу <html>, когда перевод готов
+    if (document.documentElement.classList.contains('translated-ltr')) {
+      callback();
+      return;
     }
 
-    // 2. Сразу подсвечиваем кнопку, не дожидаясь ответа
-    updateButtonStyles();
+    // Слушаем изменение классов тега <html> в реальном времени
+    const observer = new MutationObserver(function(mutations, obs) {
+      if (document.documentElement.classList.contains('translated-ltr')) {
+        obs.disconnect();
+        callback();
+      }
+    });
 
-    // 3. Вызываем перевод в Google
-    const select = document.querySelector('.goog-te-combo');
-    if (select) {
-      select.value = isRu ? 'ru' : '';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
 
-      setTimeout(function() {
-        targetBtn.innerText = isRu ? 'RU' : 'EN';
-        targetBtn.style.pointerEvents = 'auto';
-        updateButtonStyles();
-      }, 500);
-    } else {
-      // Если селектор Google ещё загружается, перезагружаем — кука уже стоит!
-      location.reload();
-    }
+    // Страховочный таймаут (если переводчик отработал без события или сеть тормозит)
+    setTimeout(function() {
+      observer.disconnect();
+      callback();
+    }, 5000);
   }
 
-  function updateButtonStyles() {
+  // Инициализация состояния кнопок при открытии страницы
+  function initLanguageState() {
     const isRu = document.cookie.includes('googtrans=/en/ru');
     const btnRu = document.getElementById('btn-lang-ru');
     const btnEn = document.getElementById('btn-lang-en');
@@ -224,15 +204,70 @@
     if (isRu) {
       btnRu.classList.add('active');
       btnEn.classList.remove('active');
+      // Включаем реальный спиннер, пока Google не отдал готовый русский текст
+      btnRu.innerHTML = '<span class="lang-spinner"></span>';
+      btnRu.style.pointerEvents = 'none';
+
+      waitForGoogleTranslateFinish(function() {
+        btnRu.innerText = 'RU';
+        btnRu.style.pointerEvents = 'auto';
+      });
     } else {
+      // Английский язык отдаётся сразу
       btnEn.classList.add('active');
       btnRu.classList.remove('active');
+      btnEn.innerText = 'EN';
+      btnRu.innerText = 'RU';
     }
   }
+
+  // Переключение языка
+  function setSiteLanguage(lang) {
+    const isRu = lang === 'ru';
+    const currentIsRu = document.cookie.includes('googtrans=/en/ru');
+    if (isRu === currentIsRu) return;
+
+    const targetBtn = document.getElementById(isRu ? 'btn-lang-ru' : 'btn-lang-en');
+    if (targetBtn) {
+      targetBtn.innerHTML = '<span class="lang-spinner"></span>';
+      targetBtn.style.pointerEvents = 'none';
+    }
+
+    const domain = window.location.hostname;
+    const paths = ['/', window.location.pathname];
+    const subpath = '/' + (window.location.pathname.split('/')[1] || '');
+    if (!paths.includes(subpath)) paths.push(subpath);
+
+    if (isRu) {
+      paths.forEach(function(p) {
+        document.cookie = "googtrans=/en/ru; path=" + p + ";";
+        document.cookie = "googtrans=/en/ru; domain=" + domain + "; path=" + p + ";";
+        if (domain.includes('.')) {
+          document.cookie = "googtrans=/en/ru; domain=." + domain + "; path=" + p + ";";
+        }
+      });
+    } else {
+      paths.forEach(function(p) {
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=" + p + ";";
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + domain + "; path=" + p + ";";
+        if (domain.includes('.')) {
+          document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=." + domain + "; path=" + p + ";";
+        }
+      });
+    }
+
+    setTimeout(function() {
+      location.reload();
+    }, 120);
+  }
+
+  // Запускаем отслеживание сразу при загрузке
+  initLanguageState();
 </script>
 
 <!-- 5. ОФИЦИАЛЬНЫЙ СКРИПТ GOOGLE TRANSLATE -->
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 
 </body>
 </html>
