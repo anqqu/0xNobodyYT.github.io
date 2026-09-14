@@ -1,10 +1,28 @@
-# 0xNobody Tools
+# 0xNobody Tools (Русская версия / Russian Localization)
+
+> 🇷🇺 **Неофициальный русскоязычный форк** интерактивных калькуляторов, баз данных и планировщиков для игры *Sword x Staff*.  
+> 🌐 **Русская версия онлайн:** [https://anqqu.github.io/0xNobodyYT.github.io/](https://anqqu.github.io/0xNobodyYT.github.io/)  
+> 🔗 **Оригинальный сайт автора:** [https://0xnobodyyt.github.io/](https://0xnobodyyt.github.io/)
+
+---
+
+### ✨ Что сделано в этом форке (Локализация):
+
+* 🌐 **Поддержка русского языка:** Интегрирован автоперевод интерфейса, карточек персонажей, калькуляторов и баз данных.
+* 🔘 **Переключатель языков [ RU | EN ]:** В правый нижний угол добавлен стильный переключатель в тёмном неоновом стиле оригинального сайта для мгновенного возврата к английскому языку.
+* 🎨 **Чистый интерфейс:** Скрыты назойливые системные плашки и баннеры переводчика — оформление сайта на 100% соответствует оригиналу.
+* 🔄 **Автоматическая синхронизация:** Настроен GitHub Actions workflow (`auto-sync.yml`), который регулярно проверяет репозиторий оригинального автора и автоматически подтягивает свежие патчи и данные по игре.
+
+---
+
+## Original Project Description (Оригинальное описание)
 
 An unofficial collection of Sword x Staff calculators, planners, databases, and interactive tools created by [0xNobody](https://www.youtube.com/@0xNobody).
 
-**Live site:** [https://0xnobodyyt.github.io/](https://0xnobodyyt.github.io/)
+**Official Creator Channel:** [https://www.youtube.com/@0xNobody](https://www.youtube.com/@0xNobody)  
+**Original Live site:** [https://0xnobodyyt.github.io/](https://0xnobodyyt.github.io/)
 
-## Available tools
+### Available tools
 
 | Tool | Description | Live page |
 | --- | --- | --- |
@@ -18,7 +36,7 @@ An unofficial collection of Sword x Staff calculators, planners, databases, and 
 | Wardrobe Viewer | Previews outfits, accessories, backwear, and class-compatible weapon appearances on animated character models. | [Open wardrobe viewer](https://0xnobodyyt.github.io/sxs-wardrobe-viewer/) |
 | Companions | Catalogs companions, friendship stat curves, filters, travel bonuses, preferred gifts, unlock routes, and biographies. | [Open companion archive](https://0xnobodyyt.github.io/sxs-companions/) |
 
-## Project structure
+### Project structure
 
 ```text
 index.html                    Tools homepage
