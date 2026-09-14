@@ -1,7 +1,11 @@
 # 0xNobody Tools (Русская версия / Russian Localization)
 
-> 🇷🇺 **Неофициальный русскоязычный форк** интерактивных калькуляторов, баз данных и планировщиков для игры *Sword x Staff*.  
-> 🌐 **Русская версия онлайн:** [https://anqqu.github.io/0xNobodyYT.github.io/](https://anqqu.github.io/0xNobodyYT.github.io/)  
+![Language](https://img.shields.io/badge/Язык-Русский-007acc?style=flat-square)
+![Status](https://img.shields.io/badge/Статус-Актуален-brightgreen?style=flat-square)
+![Sync](https://img.shields.io/badge/Авто--синхронизация-Включена-63dbef?style=flat-square)
+
+> 🌐 **Неофициальный русскоязычный форк** интерактивных калькуляторов, баз данных и планировщиков для игры *Sword x Staff*.  
+> 🔗 **Русская версия онлайн:** [https://anqqu.github.io/0xNobodyYT.github.io/](https://anqqu.github.io/0xNobodyYT.github.io/)  
 > 🔗 **Оригинальный сайт автора:** [https://0xnobodyyt.github.io/](https://0xnobodyyt.github.io/)
 
 ---
